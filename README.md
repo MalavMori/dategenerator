@@ -19,6 +19,10 @@ A sleek React.js application that helps you generate random dates based on custo
 ## 🔧 Installation & Setup
 Follow these steps to set up the project locally:
 
+## 🌐 Live Demo
+Check out the deployed version here:  
+🔗 [Date Generator](https://datesgenerator.netlify.app/)
+
 1️⃣ Clone the repository:  
    ```bash
    git clone https://github.com/MalavMori/dategenerator.git
