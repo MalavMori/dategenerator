@@ -20,6 +20,7 @@ function App() {
   const [pickdatevalue, setPickdatevalue] = useState(0);
   const [displayMessage, setDisplayMessage] = useState("");
   const [displayResult, setDisplayResult] = useState([]);
+  const [excludedates, setExcludedates] = useState([]);
 
   const daysOfWeek = [
     { value: "Monday", label: "Monday" },
@@ -44,16 +45,13 @@ function App() {
       return;
     }
 
-    // Checking if pickeddatevalue is more then 1 or not
-    if (pickdatevalue < 1) {
-      setDisplayMessage("Enter how many dates do you want");
-      return;
-    }
-
     let startdateLuxon = DateTime.fromISO(startDate);
     let enddateLuxon = DateTime.fromISO(endDate);
     let startdateShow = DateTime.fromISO(startDate);
 
+    let excludedatesArray = excludedates.map((date) => {
+      return DateTime.fromJSDate(new Date(date)).toFormat("dd/MM/yyyy");
+    });
     // All Dates
     let dateArray = [];
 
@@ -67,7 +65,10 @@ function App() {
 
     // Storing all dates to array
     while (startdateLuxon.toMillis() <= enddateLuxon.toMillis()) {
-      if (selectedDays.includes(startdateLuxon.weekdayLong)) {
+      if (
+        selectedDays.includes(startdateLuxon.weekdayLong) &&
+        !excludedatesArray.includes(startdateLuxon.toFormat("dd/MM/yyyy"))
+      ) {
         dateArray.push({
           date: startdateLuxon.toFormat("dd/MM/yyyy"),
           millisecond: startdateLuxon.toMillis(),
@@ -77,8 +78,29 @@ function App() {
       startdateLuxon = startdateLuxon.plus({ days: 1 });
     }
 
+    if (pickdatevalue == "") {
+      setDisplayResult(dateArray);
+
+      setDisplayMessage(
+        `Here are all ${
+          dateArray.length
+        } calendar dates possible between ${startdateShow.toFormat(
+          "dd/MM/yyyy"
+        )} and ${enddateLuxon.toFormat("dd/MM/yyyy")}`
+      );
+
+      return;
+    }
+
+    // Checking if pickeddatevalue is more then 1 or not
+    if (pickdatevalue < 1) {
+      setDisplayMessage("Enter how many dates do you want");
+      return;
+    }
+
     // Display Message for available dates
     if (dateArray.length >= pickdatevalue) {
+
       setDisplayMessage(
         `Here are your ${pickdatevalue} calendar dates out of ${
           dateArray.length
@@ -86,7 +108,9 @@ function App() {
           "dd/MM/yyyy"
         )} and ${enddateLuxon.toFormat("dd/MM/yyyy")}`
       );
+
     } else {
+      
       setDisplayMessage(
         `Only ${
           dateArray.length
@@ -140,12 +164,14 @@ function App() {
             value={startDate}
             onChange={setStartDate}
           />
+
           <DatePickerInput
             placeholder="Select end date"
             label="Select end date"
             value={endDate}
             onChange={setEndDate}
           />
+
           <MultiSelect
             data={daysOfWeek}
             placeholder="Select days"
@@ -153,15 +179,26 @@ function App() {
             value={selectedDays}
             onChange={setSelectedDays}
           />
+
+          <DatePickerInput
+            type="multiple"
+            label="Exclude dates"
+            placeholder="Exclude date"
+            value={excludedates}
+            onChange={setExcludedates}
+          />
+
           <NumberInput
             label="Total Dates"
             value={pickdatevalue}
             onChange={setPickdatevalue}
             placeholder="Total Dates"
           />
+
           <Button onClick={generateDate} style={{ marginTop: 10 }}>
             Generate Dates
           </Button>
+
           <Text size="lg">{displayMessage}</Text>
         </Flex>
 
